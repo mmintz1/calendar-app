@@ -6,19 +6,20 @@ import type { TimeRange } from '@/lib/types';
 
 interface Props {
   slot: TimeRange;
+  timezone: string;
   onClose: () => void;
   onBooked: () => void;
 }
 
-export default function BookingModal({ slot, onClose, onBooked }: Props) {
+export default function BookingModal({ slot, timezone, onClose, onBooked }: Props) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const start = DateTime.fromISO(slot.start);
-  const end = DateTime.fromISO(slot.end);
+  const start = DateTime.fromISO(slot.start, { zone: timezone });
+  const end = DateTime.fromISO(slot.end, { zone: timezone });
   const when = `${start.toFormat('cccc, LLL d')} · ${start.toFormat(
     'h:mm a'
   )} – ${end.toFormat('h:mm a')}`;

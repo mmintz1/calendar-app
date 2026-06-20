@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import luxonPlugin from '@fullcalendar/luxon3';
 import type { DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import BookingModal from './BookingModal';
 import type { AvailabilityResponse, TimeRange } from '@/lib/types';
@@ -62,7 +63,9 @@ export default function BookingCalendar({
           end: s.end,
           title: 'Available',
           color: '#16a34a',
-          extendedProps: { kind: 'free' as const },
+          // Keep the original API ISO strings (with the correct timezone offset)
+          // so booking/display never depend on FullCalendar's date round-tripping.
+          extendedProps: { kind: 'free' as const, rawStart: s.start, rawEnd: s.end },
         }));
 
         setEvents([...busyEvents, ...freeEvents]);
@@ -84,12 +87,9 @@ export default function BookingCalendar({
   );
 
   const handleEventClick = useCallback((arg: EventClickArg) => {
-    if (arg.event.extendedProps.kind !== 'free') return;
-    if (!arg.event.start || !arg.event.end) return;
-    setSelectedSlot({
-      start: arg.event.start.toISOString(),
-      end: arg.event.end.toISOString(),
-    });
+    const { kind, rawStart, rawEnd } = arg.event.extendedProps;
+    if (kind !== 'free' || !rawStart || !rawEnd) return;
+    setSelectedSlot({ start: rawStart, end: rawEnd });
   }, []);
 
   const handleBooked = useCallback(() => {
@@ -114,7 +114,7 @@ export default function BookingCalendar({
       {loading && <div className="loading">Loading availability…</div>}
 
       <FullCalendar
-        plugins={[timeGridPlugin, interactionPlugin]}
+        plugins={[timeGridPlugin, interactionPlugin, luxonPlugin]}
         initialView="timeGridWeek"
         timeZone={timezone}
         headerToolbar={{
@@ -140,6 +140,7 @@ export default function BookingCalendar({
       {selectedSlot && (
         <BookingModal
           slot={selectedSlot}
+          timezone={timezone}
           onClose={() => setSelectedSlot(null)}
           onBooked={handleBooked}
         />

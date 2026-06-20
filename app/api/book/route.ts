@@ -65,11 +65,27 @@ export async function POST(req: NextRequest) {
     const busy = await fetchBusy(calendar, dayStart, dayEnd);
     const slots = computeFreeSlots(busy, dayStart, dayEnd);
 
+    // Compare by instant (epoch millis), not DateTime.equals(): equals() also
+    // requires matching zones, so a slot parsed in the server-local zone would
+    // never equal `startDt` (parsed in config.timezone) even at the same moment.
+    const reqStartMs = startDt.toMillis();
+    const reqEndMs = endDt.toMillis();
     const isOffered = slots.some(
       (s) =>
-        DateTime.fromISO(s.start).equals(startDt) &&
-        DateTime.fromISO(s.end).equals(endDt)
+        DateTime.fromISO(s.start, { zone: config.timezone }).toMillis() ===
+          reqStartMs &&
+        DateTime.fromISO(s.end, { zone: config.timezone }).toMillis() ===
+          reqEndMs
     );
+
+    console.log('[book] availability check', {
+      requested: { start, end, startMs: reqStartMs, endMs: reqEndMs },
+      zone: config.timezone,
+      busyCount: busy.length,
+      offeredSlots: slots.map((s) => ({ start: s.start, end: s.end })),
+      isOffered,
+    });
+
     if (!isOffered) {
       return NextResponse.json(
         { error: 'That slot is no longer available. Please pick another.' },
