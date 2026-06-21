@@ -24,13 +24,16 @@ export default function ConnectBanner({ connectStatus }: Props) {
       : null;
 
   return (
-    <div className="banner">
+    <div className="mb-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 sm:flex-row sm:items-center">
       <div>
         <strong>Calendar not connected.</strong>{' '}
         <span>If you are the owner, connect your Google Calendar to enable bookings.</span>
-        {message && <p className="banner-error">{message}</p>}
+        {message && <p className="mt-2 text-sm text-amber-700">{message}</p>}
       </div>
-      <a className="btn-primary" href="/api/auth/google">
+      <a
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700 sm:w-auto"
+        href="/api/auth/google"
+      >
         Connect Google Calendar
       </a>
     </div>

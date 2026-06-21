@@ -38,15 +38,22 @@ export default function BookingPageClient({
   }, []);
 
   return (
-    <main className="page">
-      <header className="page-header">
-        <h1>Book a meeting</h1>
-        <p>Pick an open slot below. Busy times are blocked out.</p>
+    <main className="mx-auto max-w-5xl px-5 pb-16 pt-8">
+      <header>
+        <h1 className="mb-1 text-3xl font-bold tracking-tight">
+          Book a meeting
+        </h1>
+        <p className="mb-6 text-slate-500">
+          Pick an open slot below. Busy times are blocked out.
+        </p>
       </header>
 
       {connected === false && <ConnectBanner connectStatus={connectStatus} />}
       {connectStatus === 'success' && (
-        <div className="confirmation" role="status">
+        <div
+          className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800"
+          role="status"
+        >
           Calendar connected successfully.
         </div>
       )}

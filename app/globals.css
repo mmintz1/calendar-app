@@ -1,212 +1,47 @@
-:root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --muted: #64748b;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --green: #16a34a;
-  --radius: 10px;
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * FullCalendar overrides
+ *
+ * FullCalendar renders its own toolbar + grid DOM, so these rules target
+ * the library's generated elements — there's no JSX node to attach utility
+ * classes to. They are still authored with Tailwind via @apply and theme
+ * variables, so they stay in sync with the rest of the design tokens.
+ * ------------------------------------------------------------------ */
+.fc {
+  --fc-today-bg-color: var(--color-blue-50);
 }
 
-* {
-  box-sizing: border-box;
+/* Outline-style toolbar buttons. `.fc` prefix raises specificity above
+   FullCalendar's own button rules. */
+.fc .fc-button-primary {
+  @apply min-h-[38px] rounded-full border border-blue-600 bg-white px-3.5 py-1.5 text-sm font-semibold capitalize text-blue-600 shadow-none transition-colors;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+.fc .fc-button-primary:hover {
+  @apply border-blue-700 bg-blue-600 text-white;
 }
 
-.page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
+.fc .fc-button-primary:disabled {
+  @apply border-blue-200 bg-white text-blue-300 opacity-100;
 }
 
-.page-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  @apply border-blue-700 bg-blue-700 text-white;
 }
 
-.page-header p {
-  margin: 0 0 1.5rem;
-  color: var(--muted);
+.fc .fc-button-primary:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-700;
 }
 
-/* ---- Banner (owner connect) ---- */
-.banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+/* Let the toolbar wrap instead of overflowing / hiding content on phones. */
+.fc .fc-toolbar {
+  @apply flex-wrap gap-3;
 }
 
-.banner-error {
-  margin: 0.5rem 0 0;
-  color: #b45309;
-  font-size: 0.875rem;
-}
-
-/* ---- Buttons ---- */
-.btn-primary,
-.btn-secondary {
-  display: inline-block;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.1rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-}
-.btn-primary:hover {
-  background: var(--primary-hover);
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.btn-secondary {
-  background: #f1f5f9;
-  color: var(--text);
-}
-.btn-secondary:hover {
-  background: #e2e8f0;
-}
-
-/* ---- Calendar ---- */
-.calendar-wrap {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-  position: relative;
-}
-
-.loading {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-  z-index: 5;
-}
-
-.slot-free {
-  cursor: pointer;
-  border: none !important;
-}
-.slot-busy {
-  opacity: 0.85;
-}
-
-.confirmation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #065f46;
-  border-radius: var(--radius);
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-}
-.confirmation button {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  color: #065f46;
-  line-height: 1;
-}
-
-/* ---- Modal ---- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: 50;
-}
-
-.modal {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
-}
-
-.modal h2 {
-  margin: 0 0 0.25rem;
-}
-
-.modal-when {
-  margin: 0 0 1.25rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.modal label {
-  display: block;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.modal .optional {
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.modal input,
-.modal textarea {
-  width: 100%;
-  margin-top: 0.35rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font: inherit;
-  font-weight: 400;
-}
-
-.modal input:focus,
-.modal textarea:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 0;
-  border-color: var(--primary);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.error {
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin: 0 0 0.75rem;
+@media (max-width: 640px) {
+  .fc .fc-toolbar {
+    @apply justify-center;
+  }
 }

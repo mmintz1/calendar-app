@@ -24,6 +24,8 @@ export default function BookingCalendar({
   const [loading, setLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<TimeRange | null>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
+  // FullCalendar's range title, rendered above the calendar box ourselves.
+  const [title, setTitle] = useState('');
   // Remember the visible range so we can refetch after a booking.
   const rangeRef = useRef<{ start: string; end: string } | null>(null);
 
@@ -81,6 +83,7 @@ export default function BookingCalendar({
       const start = arg.start.toISOString();
       const end = arg.end.toISOString();
       rangeRef.current = { start, end };
+      setTitle(arg.view.title);
       void loadAvailability(start, end);
     },
     [loadAvailability]
@@ -101,26 +104,52 @@ export default function BookingCalendar({
   }, [loadAvailability]);
 
   return (
-    <div className="calendar-wrap">
-      {confirmation && (
-        <div className="confirmation" role="status">
+    <div>
+      {title && (
+        <h2 className="mb-3 text-xl font-semibold text-slate-900">{title}</h2>
+      )}
+
+      <div className="relative rounded-xl border border-slate-200 bg-white p-4">
+        {confirmation && (
+        <div
+          className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800"
+          role="status"
+        >
           {confirmation}
-          <button onClick={() => setConfirmation(null)} aria-label="Dismiss">
+          <button
+            onClick={() => setConfirmation(null)}
+            aria-label="Dismiss"
+            className="text-2xl leading-none text-emerald-800 hover:text-emerald-900"
+          >
             ×
           </button>
         </div>
       )}
 
-      {loading && <div className="loading">Loading availability…</div>}
+      {loading && (
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 rounded-xl bg-white/70 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-medium text-slate-600">
+            Loading availability…
+          </span>
+        </div>
+      )}
 
       <FullCalendar
         plugins={[timeGridPlugin, interactionPlugin, luxonPlugin]}
         initialView="timeGridWeek"
         timeZone={timezone}
         headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'timeGridWeek,timeGridDay',
+          left: 'prev',
+          center: 'today timeGridWeek,timeGridDay',
+          right: 'next',
         }}
         allDaySlot={false}
         slotMinTime={`${String(businessHours.startHour).padStart(2, '0')}:00:00`}
@@ -133,9 +162,12 @@ export default function BookingCalendar({
         eventClick={handleEventClick}
         datesSet={handleDatesSet}
         eventClassNames={(arg) =>
-          arg.event.extendedProps.kind === 'free' ? ['slot-free'] : ['slot-busy']
+          arg.event.extendedProps.kind === 'free'
+            ? ['cursor-pointer', 'border-0!']
+            : ['opacity-[0.85]']
         }
-      />
+        />
+      </div>
 
       {selectedSlot && (
         <BookingModal
